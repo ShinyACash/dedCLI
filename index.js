@@ -67,7 +67,7 @@ async function banner() {
     figlet(msg, (err, data) => {
         //console.log(gradient(['white', 'gray'])(data));
         console.log(gradient(['white', 'gray'])(art));
-        console.log('\n Made with l0v3 ' + chalk.magenta('<3') + ' f0r mys3lf hehe.  -Shiny ☆\n');
+        console.log('\n Made with l0v3 ' + chalk.magenta('<3') + ' f0r mys3lf hehe. \n -Shiny ☆\n');
     });
 }
 
@@ -97,6 +97,7 @@ async function handleAnswer(choice) {
     await sleep();
 
     if (choice == 'Lock tf in (Spotify)') {
+        spinner.start(`Checking for Spotify's ex1st3nc3...`);
         
         exec('tasklist | findstr Spotify.exe', (error, stdout) => {
             if (stdout.toString().includes('Spotify.exe')) {
@@ -149,37 +150,66 @@ async function handleAnswer(choice) {
         spinner.success({ text: `0pened t0-d0 s1te for y0u. G3tting y0ur shit d0ne tod4y?` });
     }
 
-    else if (choice == "STEP Decoy") {
-        exec('tasklist | findstr idea64.exe', (error, stdout) => {
-            if (stdout.toString().includes('idea64.exe')) {
-                spinner.success({ text: 'IntelliJ is already running' });
+   else if (choice == "STEP Decoy") {
+        spinner.start('Scanning for decoy tools...');
+
+        const tools = [
+            {
+                name: 'IntelliJ',
+                paths: [
+                    "C:\\Program Files\\JetBrains\\IntelliJ IDEA Community Edition 2024.3.2.2\\bin\\idea64.exe",
+                    "C:\\Program Files\\JetBrains\\IntelliJ IDEA\\bin\\idea64.exe",
+                    "C:\\Program Files (x86)\\JetBrains\\IntelliJ IDEA Community Edition\\bin\\idea64.exe"
+                ],
+                processName: 'idea64.exe'
+            },
+            {
+                name: 'Notepad++',
+                paths: [
+                    "C:\\Program Files\\Notepad++\\notepad++.exe",
+                    "C:\\Program Files (x86)\\Notepad++\\notepad++.exe"
+                ],
+                processName: 'notepad++.exe'
+            }
+        ];
+
+        try {
+
+            const { execSync } = await import('child_process');
+            const stdout = execSync('tasklist').toString();
+
+            const runningTool = tools.find(tool => stdout.includes(tool.processName));
+            if (runningTool) {
+                spinner.success({ text: `${runningTool.name} already running` });
                 return;
             }
-            
 
-            const stepPaths = [
-                "C:\\Program Files\\JetBrains\\IntelliJ IDEA Community Edition 2024.3.2.2\\bin\\idea64.exe",
-                //"C:\\Program Files\\Notepad++\\notepad++.exe"
-                // Can add more if you wanna for others if distributed
-            ];
+            const { existsSync } = await import('fs');
+            const foundTool = tools.find(tool => 
+                tool.paths.some(path => existsSync(path))
+            );
 
-            let found = false;
-            stepPaths.forEach(path => {
-                exec(`start "" "${path}"`, (error) => {
-                    if (!error && !found) {
-                        found = true;
-                        spinner.success({ text: `Step Decoy launched from: ${path}` });
-                    }
-                });
-            });
+            if (!foundTool) {
+                spinner.error({ text: `Bruh, no IntelliJ or Notepad++ f0und on your device, you sure you attend STEP?\n`+
+                                      `- IntelliJ IDEA (https://www.jetbrains.com/idea/download)\n` +
+                                      `- Notepad++ (https://notepad-plus-plus.org/downloads)`  });
+                return;
+            }
 
-            setTimeout(() => {
-                if (!found) {
-                    spinner.error({ text: `Bruh, could not find IntelliJ or notepad++ in your PC dude. You sure you've done shit in step before?` });
+            const path = foundTool.paths.find(p => existsSync(p));
+            const { spawn } = await import('child_process');
+            spawn('cmd.exe', [
+                '/c', 'start', '""', '/B', path
+            ], {
+                detached: true,
+                stdio: 'ignore'
+            }).unref();
 
-                }
-            }, 2000);
-        });
+            spinner.success({ text: `${foundTool.name} launched!` });
+
+        } catch (err) {
+            spinner.error({ text: `Scan failed: Pls contact me if you can...` });
+        }
     }
 
     else if (choice == "Placeholder") {
