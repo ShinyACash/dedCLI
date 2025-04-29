@@ -2,6 +2,7 @@
 My very own watch_d0gs themed CLI app for my personal use but can be modified for friends to use! (Kinda useful for ppl who do ctfs or usually like automating things.)
 <br />
 More features on the way!
+![mainmenu](https://github.com/user-attachments/assets/cbbcc87d-f3ff-47f8-8b80-c5055dd06c04)
 
 # How to use?
 Well, since this is a very early build, try opening the terminal in the folder you downloaded this repo in and then use the command `node .` to run. 
