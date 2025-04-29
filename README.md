@@ -10,7 +10,7 @@ Make sure you have node js installed in your computer, how to do this you ask? g
 
 # Current Features
 - Opens Spotify ('cause why not?)<br />
-- Has a method for producing a STEP decoy (opens np++ or intelliJ instantly if exists on your pc 😋) <br />
+- Has a method for producing a STEP decoy (opens np++ or intelliJ instantly if it exists on your pc 😋) <br />
 - Starts up my very own To Do List site for making well, todo lists! <br/>
 - CTF tools opener  for my fellow CTF players (opens deepseek, dogbolt and cyberchef) <br />
 - Placeholder! (shows you a cool terminal art that can just be a cool screenspace to flex)<br />
