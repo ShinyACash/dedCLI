@@ -8,6 +8,7 @@ More features on the way!
 Well, since this is a very early build, try opening the terminal in the folder you downloaded this repo in and then use the command `node .` to run. 
 <br />
 Make sure you have node js installed in your computer, how to do this you ask? go watch a tutorial :)). This project may become an npx executable in the future but thats too far for now.
+- Only works on w1nd0ws :))
 
 # Current Features
 - Opens Spotify ('cause why not?)<br />
