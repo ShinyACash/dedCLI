@@ -13,11 +13,7 @@ const sleep = (ms = 450) => new Promise((r) => setTimeout(r, ms));
 let run = true;
 let bannerShown = false;
 
-const SITES = [
-    'https://dogbolt.org/',
-    'https://gchq.github.io/CyberChef/',
-    'https://chat.deepseek.com/'
-];
+
     const art1 = `
 
                           ÿþÙ®xÞÿZÚNpbi³ 
@@ -97,7 +93,7 @@ async function handleAnswer(choice) {
     await sleep();
 
     if (choice == 'Lock tf in (Spotify)') {
-        spinner.start(`Checking for Spotify's ex1st3nc3...`);
+        //spinner.start(`Checking for Spotify's ex1st3nc3...`);
         
         exec('tasklist | findstr Spotify.exe', (error, stdout) => {
             if (stdout.toString().includes('Spotify.exe')) {
@@ -130,7 +126,7 @@ async function handleAnswer(choice) {
     }
 
     else if (choice == "CTF") {
-        SITES.forEach(site => {
+        myData.SITES.forEach(site => {
             exec(`start "" "${site}"`, (error) => {
                 if (error) {
                     spinner.error({ text: `00psies failed t0 0pen ${site}: maybe try checking your processes.` });
@@ -190,7 +186,7 @@ async function handleAnswer(choice) {
             );
 
             if (!foundTool) {
-                spinner.error({ text: `Bruh, no IntelliJ or Notepad++ f0und on your device, you sure you attend STEP?\n`+
+                spinner.error({ text: `Bruh, no IntelliJ or Notepad++ f0und on your device, you sure you attend STEP? Unless you use VSC ofc.\n`+
                                       `- IntelliJ IDEA (https://www.jetbrains.com/idea/download)\n` +
                                       `- Notepad++ (https://notepad-plus-plus.org/downloads)`  });
                 return;
@@ -225,8 +221,12 @@ async function handleAnswer(choice) {
     }
 
     else if (choice == "eX1t") {
-        run = false;
+        /*run = false;
+        process.stdout.write('\x1B[2J\x1B[3J\x1B[H'); // Clear terminal before exiting.
         process.exit(0);
+        return;*/
+        spinner.stop();
+        exec('taskkill /f /pid ' + process.ppid); // force kill the terminal 💀💀
         return;
     }
 
