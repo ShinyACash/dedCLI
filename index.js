@@ -79,6 +79,8 @@ async function mainMenu() {
             'STEP Decoy',
             'Get yo shit done (To do)', 
             'Placeholder',
+            'Minigame :)',
+            'Github (dev)',
             'Clear',
             'eX1t',
         ],
@@ -213,6 +215,21 @@ async function handleAnswer(choice) {
         console.log(gradient(['white', 'gray'])(art1));
     }
 
+    else if (choice == "Minigame :)") {
+        spinner.error({ text: 'Still under development' });
+        // RPG ahh with a save system hopefully.
+    }
+
+    else if (choice == "Github (dev)") {
+
+        exec(`start "" "${myData.github}"`, (error) => {
+            if (error) {
+                spinner.error({ text: `00psies failed t0 0pen github: maybe try checking your processes.` });
+            }
+        });
+        spinner.success({ text: `0pened my Github for y0u. St4lk1ng mUch?` });
+    }
+
     else if (choice == "Clear") {
         exec('cls', () => { }); 
         process.stdout.write('\x1B[2J\x1B[3J\x1B[H'); // ANSI super-clear just in case cls doesnt work.
@@ -229,6 +246,8 @@ async function handleAnswer(choice) {
         exec('taskkill /f /pid ' + process.ppid); // force kill the terminal 💀💀
         return;
     }
+
+
 
     if (run) {
         await sleep(1000);
