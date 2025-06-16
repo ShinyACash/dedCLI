@@ -9,7 +9,7 @@ import chalkAnimation from 'chalk-animation';
 import figlet from 'figlet';
 import { createSpinner } from 'nanospinner';
 import { exec } from 'child_process';
-import * as myData from './data.js'; // storing personal data/my own sties hosted on github
+import * as myData from './data.js'; // storing my own sties hosted on github
 import envManager from './utils/envManager.js';
 
 
@@ -94,6 +94,7 @@ async function mainMenu() {
         message: 'Select wh4t you wanna do hax0r: \n',
         choices: [
             'Connect to SRMIST',
+            new inquirer.Separator(),
             'Lock tf in (Spotify)',
             'CTF',
             'STEP Decoy',
@@ -101,8 +102,9 @@ async function mainMenu() {
             new inquirer.Separator(),
             'Placeholder',
             'Github (dev)',
-            'Minigames :))', // Changed to indicate submenu
+            'Minigames :))', 
             new inquirer.Separator(),
+            '[d3v C0ns0l3]',
             'Clear',
             'eX1t',
             new inquirer.Separator(),
@@ -162,6 +164,35 @@ async function handleAnswer(choice) {
                 process.exit(1);
             }*/
     
+        }
+
+        else if (choice == '[d3v C0ns0l3]') {
+            spinner.success({ text: "entering debug console" });
+            console.clear();
+            try {
+                const { default: devConsole } = await import('./devConsole.js');
+                await devConsole();
+                console.clear();
+                return mainMenu();
+            }
+            catch (err) {
+                console.error(chalk.red('nice try but access denied :P'), err);
+                await new Promise(resolve => setTimeout(resolve, 2000));
+            }
+        }
+
+        else if (choice == "Minigames :))") {
+            spinner.success({ text: "Entering minigames..." });
+            console.clear();
+            try {
+                const { default: minigameHandler } = await import('./minigameHandler.js');
+                await minigameHandler();
+                console.clear();
+                return mainMenu();
+            } catch (err) {
+                console.error(chalk.red('Minigame error:'), err);
+                await new Promise(resolve => setTimeout(resolve, 2000));
+            }
         }
 
         else if (choice == 'Lock tf in (Spotify)') {
@@ -285,19 +316,6 @@ async function handleAnswer(choice) {
             console.log(gradient(['white', 'gray'])(art1));
         }
 
-        else if (choice == "Minigames :))") {
-            spinner.success({ text: "Entering minigames..." });
-            console.clear();
-            try {
-                const { default: minigameHandler } = await import('./minigameHandler.js');
-                await minigameHandler();
-                console.clear();
-                return mainMenu();
-            } catch (err) {
-                console.error(chalk.red('Minigame error:'), err);
-                await new Promise(resolve => setTimeout(resolve, 2000));
-            }
-        }
 
         else if (choice == "Github (dev)") {
 

@@ -149,11 +149,16 @@ class BlackjackGame {
 export default async function () {
     const game = new BlackjackGame();
     await game.play();
+    // Play again prompt (to be fixed)
     const { playAgain } = await inquirer.prompt({
         type: 'confirm',
         name: 'playAgain',
-        message: 'Play again?',
-        default: false,
+        message: chalk.blue('Play another round? (doesnt work just yet but you can select blackjack from the menu again.'),
+        default: false
     });
-    if (playAgain) await module.exports();
+
+    /*if (playAgain) {
+        console.clear();
+        return await game.play(); // Note the 'await' here
+    }*/ //will fix bug in later version
 };

@@ -33,6 +33,7 @@ class MoneyManager {
         return iv.toString('hex') + ':' + encrypted;
     }
 
+    // i just know some of yall gonna mess with this. //
     decrypt(text) {
         const [ivHex, encrypted] = text.split(':');
         const iv = Buffer.from(ivHex, 'hex');
@@ -40,7 +41,7 @@ class MoneyManager {
             crypto.scryptSync(SECRET_KEY, 'salt', 32),
             iv
         );
-        let decrypted = decipher.update(encrypted, 'hex', 'utf8');
+        let decrypted = decipher.update(encrypted, 'hex', 'utf8'); 
         decrypted += decipher.final('utf8');
         return decrypted;
     }

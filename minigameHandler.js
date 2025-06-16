@@ -10,7 +10,7 @@ export default async function minigameHandler() {
         console.clear();
         console.log(chalk.bold.magenta('\n=== MINIGAME VAULT ===\n\n'));
         console.log(chalk.yellow(`Current balance: $${money.getBalance()}\n`));
-        console.log('More games to come with future updates!');
+        console.log('More games to come with future updates!\n');
 
         const { game } = await inquirer.prompt({
             name: 'game',
@@ -21,7 +21,6 @@ export default async function minigameHandler() {
                 new inquirer.Separator(),
                 'Return to Main Menu'
             ],
-            pageSize: 10 // Ensure all choices are visible
         });
 
         if (game == 'Return to Main Menu') {

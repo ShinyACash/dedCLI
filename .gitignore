@@ -1,4 +1,5 @@
 /.env.enc
 /.wallet.enc
 /hashchecker.txt
+/devConsole.js
 .vs/
