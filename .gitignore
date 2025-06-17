@@ -2,4 +2,5 @@
 /.wallet.enc
 /hashchecker.txt
 /devConsole.js
+/log.txt
 .vs/
