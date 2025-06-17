@@ -146,19 +146,22 @@ class BlackjackGame {
     }
 }
 
-export default async function () {
-    const game = new BlackjackGame();
-    await game.play();
-    // Play again prompt (to be fixed)
-    const { playAgain } = await inquirer.prompt({
-        type: 'confirm',
-        name: 'playAgain',
-        message: chalk.blue('Play another round? (doesnt work just yet but you can select blackjack from the menu again.'),
-        default: false
-    });
 
-    /*if (playAgain) {
-        console.clear();
-        return await game.play(); // Note the 'await' here
-    }*/ //will fix bug in later version
-};
+
+export default async function () {
+    let playAgain = true;
+    const game = new BlackjackGame();
+    while (playAgain) {
+        await game.play();
+        const result = await inquirer.prompt({
+            type: 'confirm',
+            name: 'playAgain',
+            message: chalk.blue('Play another round?'),
+            default: false
+        });
+        playAgain = result.playAgain;
+        if (playAgain) {
+            console.clear();
+        }
+    }
+}
