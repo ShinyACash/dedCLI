@@ -1,7 +1,8 @@
 ﻿import inquirer from 'inquirer';
 import chalk from 'chalk';
 import money from './moneyManager.js';
-
+import fs from 'fs';
+import path from 'path';
 
 class BlackjackGame {
     constructor() {
@@ -51,6 +52,13 @@ class BlackjackGame {
             aces--;
         }
         return score;
+    }
+
+    logErrorToFile(error) {
+        const logPath = path.resolve('log.txt');
+        const now = new Date().toISOString();
+        const logEntry = `[${now}] ${error.stack || error}\n`;
+        fs.appendFileSync(logPath, logEntry, 'utf8');
     }
 
     async play() {
@@ -152,7 +160,12 @@ export default async function () {
     let playAgain = true;
     const game = new BlackjackGame();
     while (playAgain) {
-        await game.play();
+        try {
+            await game.play();
+        } catch (error) {
+            console.log(chalk.red('An error occurred. Check log.txt for details.'));
+            game.logErrorToFile(error);
+        }
         const result = await inquirer.prompt({
             type: 'confirm',
             name: 'playAgain',

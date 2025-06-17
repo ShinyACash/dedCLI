@@ -1,16 +1,50 @@
 ﻿#!/usr/bin/env node
 
+// Dependency check utility
+async function checkDependencies() {
+    const required = [
+        { name: 'chalk', importName: 'chalk' },
+        { name: 'inquirer', importName: 'inquirer' },
+        { name: 'gradient-string', importName: 'gradient-string' },
+        { name: 'figlet', importName: 'figlet' },
+        { name: 'nanospinner', importName: 'nanospinner' },
+        { name: 'chalk-animation', importName: 'chalk-animation' }
+    ];
+    let missing = [];
+    for (const dep of required) {
+        try {
+            await import(dep.importName);
+            //console.log(chalk.green(`✔ ${dep.name} is installed`));
+        } catch (e) {
+            missing.push(dep.name);
+        }
+    }
+    if (missing.length > 0) {
+        console.log('\n' + chalk.red('Missing dependencies detected:'));
+        missing.forEach(dep => console.log(chalk.yellow(' - ' + dep)));
+        console.log(chalk.cyan('\nPlease run ') + chalk.green('npm install') + chalk.cyan(' before using this CLI.\n'));
+        process.exit(1);
+    }
+}
+
+await checkDependencies();
+
 import chalk from 'chalk';
 import inquirer from 'inquirer';
 import gradient from 'gradient-string';
 //import puppeteer from 'puppeteer';
-import { execSync } from 'child_process';
-import chalkAnimation from 'chalk-animation';
+//import { execSync } from 'child_process';
+//import chalkAnimation from 'chalk-animation'; //not needed for now, but can be used for animations later on
 import figlet from 'figlet';
 import { createSpinner } from 'nanospinner';
 import { exec } from 'child_process';
 import * as myData from './data.js'; // storing my own sties hosted on github
 import envManager from './utils/envManager.js';
+import fs from 'fs';
+import path from 'path';
+
+
+
 
 
 envManager.initializeEnv();
@@ -19,19 +53,7 @@ const sleep = (ms = 450) => new Promise((r) => setTimeout(r, ms));
 let run = true;
 let bannerShown = false;
 
-/*const CONFIG = {
-    WIFI_SSID: "SRMIST",
-    PORTAL_URL: "https://iac.srmist.edu.in/Connect/PortalMain",
-    CREDENTIALS: {
-        username: "##", // Or use process.env.UNI_USERNAME
-        password: "##"  // Or use process.env.UNI_PASSWORD
-    },
-    SELECTORS: {
-        username: '#LoginUserPassword_auth_username',
-        password: '#LoginUserPassword_auth_password',
-        submit: '#UserCheck_Login_Button'
-    }
-};*/
+
 
 
     const art1 = `
@@ -115,6 +137,13 @@ async function mainMenu() {
 
 }
 
+async function logErrorToFile(error) {
+    const logPath = path.resolve('log.txt');
+    const now = new Date().toISOString();
+    const logEntry = `[${now}] ${error.stack || error}\n`;
+    fs.appendFileSync(logPath, logEntry, 'utf8');
+}
+
 async function handleAnswer(choice) {
     const spinner = createSpinner('Doing sh1t have pat1enc3...\n').start();
     await sleep(500);
@@ -122,48 +151,7 @@ async function handleAnswer(choice) {
 
         if (choice == 'Connect to SRMIST') {
             spinner.error({ text: 'Still under development' });
-            // WILL FIX IN SEM 3
-            /*try {
-                execSync(`netsh wlan connect name="${CONFIG.WIFI_SSID}"`);
-                spinner.text = 'Waiting for portal...';
-
-                const browser = await puppeteer.launch({
-                    headless: "new",  e
-                    args: [
-                        '--no-sandbox',
-                        '--disable-setuid-sandbox',
-                        '--disable-web-security',
-                        '--hide-scrollbars'
-                    ]
-                });
-
-                const page = await browser.newPage();
-                await page.setViewport({ width: 1366, height: 768 });
-
-                await page.setBypassCSP(true);
-                page.on('dialog', async dialog => await dialog.dismiss());
-
-                await page.goto(CONFIG.PORTAL_URL, {
-                    waitUntil: 'networkidle2',
-                    timeout: 15000
-                }).catch(() => spinner.text = 'Retrying portal...');
-
-                await page.waitForSelector(CONFIG.SELECTORS.username, { visible: true });
-                await page.type(CONFIG.SELECTORS.username, CONFIG.CREDENTIALS.username, { delay: 50 });
-                await page.type(CONFIG.SELECTORS.password, CONFIG.CREDENTIALS.password, { delay: 50 });
-                await page.click(CONFIG.SELECTORS.submit);
-
-                await page.waitForNavigation({ timeout: 10000 })
-                    .then(() => spinner.success({ text: 'Authenticated silently! 🎉' }))
-                    .catch(() => spinner.error({ text: 'Portal timeout (may still work)' }));
-
-                await browser.close();
-
-            } catch (error) {
-                spinner.error({ text: `Critical failure: ${error.message}` });
-                process.exit(1);
-            }*/
-    
+            // WILL FIX IN SEM 3 
         }
 
         else if (choice == '[d3v C0ns0l3]') {
@@ -191,6 +179,7 @@ async function handleAnswer(choice) {
                 return mainMenu();
             } catch (err) {
                 console.error(chalk.red('Minigame error:'), err);
+                logErrorToFile(err); 
                 await new Promise(resolve => setTimeout(resolve, 2000));
             }
         }
@@ -215,6 +204,7 @@ async function handleAnswer(choice) {
                             found = true;
                             spinner.success({ text: `Sp0tify l4unch3d fr0m: ${path}` });
                         }
+                        logErrorToFile(error); 
                     });
                 });
 
@@ -232,6 +222,7 @@ async function handleAnswer(choice) {
                 exec(`start "" "${site}"`, (error) => {
                     if (error) {
                         spinner.error({ text: `00psies failed t0 0pen ${site}: maybe try checking your processes.` });
+                        logErrorToFile(error); 
                     }
                 });
             });
@@ -243,6 +234,7 @@ async function handleAnswer(choice) {
             exec(`start "" "${myData.toDoSite}"`, (error) => {
                 if (error) {
                     spinner.error({ text: `00psies failed t0 0pen t0-d0 site: maybe try checking your processes.` });
+                    logErrorToFile(error); 
                 }
             });
             spinner.success({ text: `0pened t0-d0 s1te for y0u. G3tting y0ur shit d0ne tod4y?` });
@@ -308,6 +300,7 @@ async function handleAnswer(choice) {
 
             } catch (err) {
                 spinner.error({ text: `Scan failed: Pls contact me if you can...` });
+                logErrorToFile(err); 
             }
         }
 
@@ -322,6 +315,7 @@ async function handleAnswer(choice) {
             exec(`start "" "${myData.github}"`, (error) => {
                 if (error) {
                     spinner.error({ text: `00psies failed t0 0pen github: maybe try checking your processes.` });
+                    logErrorToFile(error); 
                 }
             });
             spinner.success({ text: `0pened my Github for y0u. St4lk1ng mUch?` });
@@ -335,16 +329,13 @@ async function handleAnswer(choice) {
         }
 
         else if (choice == "eX1t") {
-            /*run = false;
-            process.stdout.write('\x1B[2J\x1B[3J\x1B[H'); // Clear terminal before exiting.
-            process.exit(0);
-            return;*/
             spinner.stop();
             exec('taskkill /f /pid ' + process.ppid); // force kill the terminal 💀💀
             return;
         }
     } catch (err) {
         spinner.error({ text: `Error: ${err.message}` });
+        logErrorToFile(err);
     } finally {
         if (spinner.isSpinning) spinner.stop();
     }

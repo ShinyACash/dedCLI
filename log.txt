@@ -1,0 +1,6 @@
+[2025-06-17T06:42:39.380Z] TypeError: Cannot read properties of undefined (reading 'value')
+    at BlackjackGame.calculateScore (file:///C:/Users/Akash/Documents/GitHub/dedCLI/blackjack.js:44:47)
+    at BlackjackGame.play (file:///C:/Users/Akash/Documents/GitHub/dedCLI/blackjack.js:110:41)
+    at async default (file:///C:/Users/Akash/Documents/GitHub/dedCLI/blackjack.js:164:13)
+    at async minigameHandler (file:///C:/Users/Akash/Documents/GitHub/dedCLI/minigameHandler.js:39:21)
+    at async handleAnswer (file:///C:/Users/Akash/Documents/GitHub/dedCLI/index.js:189:17)
