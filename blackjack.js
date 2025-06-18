@@ -34,23 +34,36 @@ class BlackjackGame {
     }
 
     dealCard(hand) {
-        hand.push(this.deck.pop());
+        if (this.deck.length === 0) {
+            this.initializeDeck(); // Re-shuffle if deck is empty
+        }
+        const card = this.deck.pop();
+        if (card) hand.push(card);
     }
 
     calculateScore(hand) {
         let score = 0;
         let aces = 0;
+
         for (const card of hand) {
-            if (['J', 'Q', 'K'].includes(card.value)) score += 10;
-            else if (card.value === 'A') {
+            if (!card) continue; 
+
+            if (['J', 'Q', 'K'].includes(card.value)) {
+                score += 10;
+            } else if (card.value === 'A') {
                 score += 11;
                 aces++;
-            } else score += parseInt(card.value);
+            } else {
+                const numValue = parseInt(card.value);
+                score += isNaN(numValue) ? 0 : numValue; 
+            }
         }
+
         while (score > 21 && aces > 0) {
             score -= 10;
             aces--;
         }
+
         return score;
     }
 
@@ -62,6 +75,10 @@ class BlackjackGame {
     }
 
     async play() {
+        if (this.deck.length < 10) {
+            this.initializeDeck();
+        }
+
         console.log(chalk.bold.gray('\n=== BLACKJACK ===\n'));
         console.log(chalk.green(`Current balance: $${money.getBalance()}`));
 
@@ -73,7 +90,6 @@ class BlackjackGame {
             validate: input => {
                 if (isNaN(input)) return 'Enter a number!';
                 if (input < 10) return 'Minimum bet is 10!';
-                if (input > money.getBalance()) return 'Not enough money!';
                 return true;
             }
         });
