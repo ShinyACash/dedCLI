@@ -140,7 +140,7 @@ async function mainMenu() {
 async function logErrorToFile(error) {
     const logPath = path.resolve('log.txt');
     const now = new Date().toISOString();
-    const logEntry = `[${now}] ${error.stack || error}\n`;
+    const logEntry = `[${now}] ${error}\n`;
     fs.appendFileSync(logPath, logEntry, 'utf8');
 }
 
@@ -150,8 +150,19 @@ async function handleAnswer(choice) {
     try {
 
         if (choice == 'Connect to SRMIST') {
-            spinner.error({ text: 'Still under development' });
-            // WILL FIX IN SEM 3 
+
+
+            const ssid = "SRMIST";
+
+            exec(`netsh wlan connect name="${ssid}"`, (error) => {
+                if (error) {
+                    spinner.error(`Error connecting: ${error.message}`);
+                    return;
+                }
+                
+                spinner.success(`Connected to Wi-Fi network: ${ssid}`);
+            });
+
         }
 
         else if (choice == '[d3v C0ns0l3]') {
