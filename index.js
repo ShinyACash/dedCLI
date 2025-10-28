@@ -229,15 +229,29 @@ async function handleAnswer(choice) {
         }
 
         else if (choice == "CTF") {
-            myData.SITES.forEach(site => {
-                exec(`start "" "${site}"`, (error) => {
-                    if (error) {
-                        spinner.error({ text: `00psies failed t0 0pen ${site}: maybe try checking your processes.` });
-                        logErrorToFile(error); 
-                    }
-                });
+            spinner.success({ text: "Entering CTF Toolkit..." });
+            console.clear();
+            exec('start powershell.exe', (error, stdout, stderr) => {
+                if (error) {
+                    console.error(`Error opening PowerShell: ${error.message}`);
+                    return;
+                }
+                if (stderr) {
+                    console.error(`PowerShell stderr: ${stderr}`);
+                    return;
+                }
+                console.log('PowerShell window opened successfully.');
             });
-            spinner.success({ text: `0pened 4ll s1tes for y0u.` });
+            try {
+                const { default: ctfHandler } = await import('./ctfHandler.js');
+                await ctfHandler();
+                console.clear();
+                return mainMenu();
+            } catch (err) {
+                console.error(chalk.red('Toolkit error:'), err);
+                logErrorToFile(err);
+                await new Promise(resolve => setTimeout(resolve, 2000));
+            }
         }
 
         else if (choice == "Get yo shit done (To do)") {
