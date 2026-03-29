@@ -14,7 +14,7 @@ async function checkDependencies() {
     for (const dep of required) {
         try {
             await import(dep.importName);
-            //console.log(chalk.green(`✔ ${dep.name} is installed`));
+            //console.log(chalk.green(`+ ${dep.name} is installed`));
         } catch (e) {
             missing.push(dep.name);
         }
@@ -38,10 +38,8 @@ import gradient from 'gradient-string';
 import figlet from 'figlet';
 import { createSpinner } from 'nanospinner';
 import { exec } from 'child_process';
-import * as myData from './data.js'; // storing my own sties hosted on github
 import envManager from './utils/envManager.js';
-import fs from 'fs';
-import path from 'path';
+import { appPaths, downloadLinks, sites } from './paths.js';
 
 
 
@@ -116,15 +114,17 @@ async function mainMenu() {
         message: 'Select wh4t you wanna do hax0r: \n',
         choices: [
             'Connect to SRMIST',
+            'Cloudflare Warp',
             new inquirer.Separator(),
             'Lock tf in (Spotify)',
             'CTF',
-            'STEP Decoy',
+            'STEP',
             'Get yo shit done (To do)', 
             new inquirer.Separator(),
             'Placeholder',
             'Github (dev)',
             'Minigames :))', 
+            'Custom Apps',
             new inquirer.Separator(),
             '[d3v C0ns0l3]',
             'Clear',
@@ -203,10 +203,7 @@ async function handleAnswer(choice) {
                     spinner.success({ text: 'Spotify is already running' });
                 }
             
-                const spotifyPaths = [
-                    '%LOCALAPPDATA%\\Microsoft\\WindowsApps\\Spotify.exe',
-                    // Can add more if you wanna but this is the most common one
-                ];
+                const spotifyPaths = appPaths.spotify;
 
                 let found = false;
                 spotifyPaths.forEach(path => {
@@ -221,7 +218,7 @@ async function handleAnswer(choice) {
 
                 setTimeout(() => {
                     if (!found) {
-                        spinner.error({ text: `Bruh, could not find Spotify in your PC dude. Try installing it from the windows store maybe?` });
+                        spinner.error({ text: `Bruh, could not find Spotify in your PC dude. Try installing it from: ${downloadLinks.spotify}` });
                     
                     }
                 }, 2000);
@@ -231,17 +228,6 @@ async function handleAnswer(choice) {
         else if (choice == "CTF") {
             spinner.success({ text: "Entering CTF Toolkit..." });
             console.clear();
-            exec('start powershell.exe', (error, stdout, stderr) => {
-                if (error) {
-                    console.error(`Error opening PowerShell: ${error.message}`);
-                    return;
-                }
-                if (stderr) {
-                    console.error(`PowerShell stderr: ${stderr}`);
-                    return;
-                }
-                console.log('PowerShell window opened successfully.');
-            });
             try {
                 const { default: ctfHandler } = await import('./ctfHandler.js');
                 await ctfHandler();
@@ -256,7 +242,7 @@ async function handleAnswer(choice) {
 
         else if (choice == "Get yo shit done (To do)") {
 
-            exec(`start "" "${myData.toDoSite}"`, (error) => {
+            exec(`start "" "${sites.toDoSite}"`, (error) => {
                 if (error) {
                     spinner.error({ text: `00psies failed t0 0pen t0-d0 site: maybe try checking your processes.` });
                     logErrorToFile(error); 
@@ -265,25 +251,18 @@ async function handleAnswer(choice) {
             spinner.success({ text: `0pened t0-d0 s1te for y0u. G3tting y0ur shit d0ne tod4y?` });
         }
 
-       else if (choice == "STEP Decoy") {
+       else if (choice == "STEP") {
             spinner.start('Scanning for decoy tools...');
 
             const tools = [
                 {
                     name: 'IntelliJ',
-                    paths: [
-                        "C:\\Program Files\\JetBrains\\IntelliJ IDEA Community Edition 2024.3.2.2\\bin\\idea64.exe",
-                        "C:\\Program Files\\JetBrains\\IntelliJ IDEA\\bin\\idea64.exe",
-                        "C:\\Program Files (x86)\\JetBrains\\IntelliJ IDEA Community Edition\\bin\\idea64.exe"
-                    ],
+                    paths: appPaths.intellij,
                     processName: 'idea64.exe'
                 },
                 {
                     name: 'Notepad++',
-                    paths: [
-                        "C:\\Program Files\\Notepad++\\notepad++.exe",
-                        "C:\\Program Files (x86)\\Notepad++\\notepad++.exe"
-                    ],
+                    paths: appPaths.notepad,
                     processName: 'notepad++.exe'
                 }
             ];
@@ -307,8 +286,8 @@ async function handleAnswer(choice) {
 
                     if (!foundTool) {
                         spinner.error({ text: `Bruh, no IntelliJ or Notepad++ f0und on your device, you sure you attend STEP? Unless you use VSC ofc.\n`+
-                                              `- IntelliJ IDEA (https://www.jetbrains.com/idea/download)\n` +
-                                              `- Notepad++ (https://notepad-plus-plus.org/downloads)`  });
+                                              `- IntelliJ IDEA (${downloadLinks.intellij})\n` +
+                                              `- Notepad++ (${downloadLinks.notepad})`  });
                     }
 
                     const path = foundTool.paths.find(p => existsSync(p));
@@ -337,13 +316,56 @@ async function handleAnswer(choice) {
 
         else if (choice == "Github (dev)") {
 
-            exec(`start "" "${myData.github}"`, (error) => {
+            exec(`start "" "${sites.github}"`, (error) => {
                 if (error) {
                     spinner.error({ text: `00psies failed t0 0pen github: maybe try checking your processes.` });
                     logErrorToFile(error); 
                 }
             });
             spinner.success({ text: `0pened my Github for y0u. St4lk1ng mUch?` });
+        }
+
+        else if (choice == 'Cloudflare Warp') {
+            exec('tasklist | findstr CloudflareWARP.exe', (error, stdout) => {
+                if (stdout && stdout.toString().includes('CloudflareWARP.exe')) {
+                    spinner.success({ text: 'Cloudflare Warp is already running' });
+                    return;
+                }
+            
+                const warpPaths = appPaths.cloudflareWarp;
+                let found = false;
+                warpPaths.forEach(path => {
+                    exec(`start "" "${path}"`, (error) => {
+                        if (!error && !found) {
+                            found = true;
+                            spinner.success({ text: `Cloudflare Warp launched from: ${path}` });
+                        }
+                        logErrorToFile(error); 
+                    });
+                });
+
+                setTimeout(() => {
+                    if (!found) {
+                        spinner.error({ text: `Bruh, could not find Cloudflare Warp on your PC. Download from: ${downloadLinks.cloudflareWarp}` });
+                    
+                    }
+                }, 2000);
+            });
+        }
+
+        else if (choice == 'Custom Apps') {
+            spinner.success({ text: "Entering Custom Apps..." });
+            console.clear();
+            try {
+                const { default: customAppsHandler } = await import('./customAppsHandler.js');
+                await customAppsHandler();
+                console.clear();
+                return mainMenu();
+            } catch (err) {
+                console.error(chalk.red('Custom Apps error:'), err);
+                logErrorToFile(err);
+                await new Promise(resolve => setTimeout(resolve, 2000));
+            }
         }
 
         else if (choice == "Clear") {
