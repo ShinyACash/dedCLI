@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env node
+#!/usr/bin/env node
 
 // Dependency check utility
 async function checkDependencies() {
@@ -38,6 +38,8 @@ import gradient from 'gradient-string';
 import figlet from 'figlet';
 import { createSpinner } from 'nanospinner';
 import { exec } from 'child_process';
+import path from 'path';
+import fs from 'fs';
 import envManager from './utils/envManager.js';
 import { appPaths, downloadLinks, sites } from './paths.js';
 
@@ -121,6 +123,10 @@ async function mainMenu() {
             'STEP',
             'Get yo shit done (To do)', 
             new inquirer.Separator(),
+            'Clipboard History',
+            'Log Viewer',
+            'Session Timer',
+            new inquirer.Separator(),
             'Placeholder',
             'Github (dev)',
             'Minigames :))', 
@@ -138,6 +144,7 @@ async function mainMenu() {
 }
 
 async function logErrorToFile(error) {
+    if (!error) return; // don't log null/undefined (e.g. exec callback when no error occurred)
     const logPath = path.resolve('log.txt');
     const now = new Date().toISOString();
     const logEntry = `[${now}] ${error}\n`;
@@ -288,12 +295,13 @@ async function handleAnswer(choice) {
                         spinner.error({ text: `Bruh, no IntelliJ or Notepad++ f0und on your device, you sure you attend STEP? Unless you use VSC ofc.\n`+
                                               `- IntelliJ IDEA (${downloadLinks.intellij})\n` +
                                               `- Notepad++ (${downloadLinks.notepad})`  });
+                        return; // don't continue — foundTool is undefined below this point
                     }
 
-                    const path = foundTool.paths.find(p => existsSync(p));
+                    const toolPath = foundTool.paths.find(p => existsSync(p));
                     const { spawn } = await import('child_process');
                     spawn('cmd.exe', [
-                        '/c', 'start', '""', '/B', path
+                        '/c', 'start', '""', '/B', toolPath
                     ], {
                         detached: true,
                         stdio: 'ignore'
@@ -351,6 +359,51 @@ async function handleAnswer(choice) {
                     }
                 }, 2000);
             });
+        }
+
+        else if (choice == 'Clipboard History') {
+            spinner.success({ text: 'Opening Clipboard History...' });
+            console.clear();
+            try {
+                const { default: clipboardHistory } = await import('./clipboardHistory.js');
+                await clipboardHistory();
+                console.clear();
+                return mainMenu();
+            } catch (err) {
+                console.error(chalk.red('Clipboard History error:'), err);
+                logErrorToFile(err);
+                await new Promise(resolve => setTimeout(resolve, 2000));
+            }
+        }
+
+        else if (choice == 'Log Viewer') {
+            spinner.success({ text: 'Opening Log Viewer...' });
+            console.clear();
+            try {
+                const { default: logViewer } = await import('./logViewer.js');
+                await logViewer();
+                console.clear();
+                return mainMenu();
+            } catch (err) {
+                console.error(chalk.red('Log Viewer error:'), err);
+                logErrorToFile(err);
+                await new Promise(resolve => setTimeout(resolve, 2000));
+            }
+        }
+
+        else if (choice == 'Session Timer') {
+            spinner.success({ text: 'Starting Session Timer...' });
+            console.clear();
+            try {
+                const { default: sessionTimer } = await import('./sessionTimer.js');
+                await sessionTimer();
+                console.clear();
+                return mainMenu();
+            } catch (err) {
+                console.error(chalk.red('Session Timer error:'), err);
+                logErrorToFile(err);
+                await new Promise(resolve => setTimeout(resolve, 2000));
+            }
         }
 
         else if (choice == 'Custom Apps') {
