@@ -37,19 +37,38 @@ import gradient from 'gradient-string';
 //import chalkAnimation from 'chalk-animation'; //not needed for now, but can be used for animations later on
 import figlet from 'figlet';
 import { createSpinner } from 'nanospinner';
-import { exec } from 'child_process';
+import { exec, spawn } from 'child_process';
 import path from 'path';
 import fs from 'fs';
 import envManager from './utils/envManager.js';
-import { appPaths, downloadLinks, sites } from './paths.js';
-
-
-
-
+import { appPaths, downloadLinks, sites, ctfTools } from './paths.js';
 
 envManager.initializeEnv();
 
 const sleep = (ms = 450) => new Promise((r) => setTimeout(r, ms));
+
+const configPath = path.resolve('.dedsec_paths.json');
+if (!fs.existsSync(configPath)) {
+    console.clear();
+    const spinner = createSpinner('Initializing first-time setup... Scanning registry for tools...').start();
+    try {
+        const { runPathScan } = await import('./utils/pathScanner.js');
+        const resolvedConfigs = await runPathScan(appPaths);
+        fs.writeFileSync(configPath, JSON.stringify(resolvedConfigs, null, 4));
+        
+        Object.assign(appPaths, resolvedConfigs);
+        if (resolvedConfigs.wireshark) ctfTools.forensics.wireshark.paths = resolvedConfigs.wireshark;
+        if (resolvedConfigs.vmware) ctfTools.forensics.virtualMachine.vmware.paths = resolvedConfigs.vmware;
+        if (resolvedConfigs.burpSuite) ctfTools.webExploit.burpSuite.paths = resolvedConfigs.burpSuite;
+        if (resolvedConfigs.binaryNinja) ctfTools.revPwn.binaryNinja.paths = resolvedConfigs.binaryNinja;
+
+        spinner.success({ text: 'Scanner complete. Configuration cached locally.' });
+    } catch (e) {
+        spinner.error({ text: 'Scanner failed. Using fallback paths.' });
+    }
+    await sleep(2000);
+    console.clear();
+}
 let run = true;
 let bannerShown = false;
 
@@ -341,23 +360,17 @@ async function handleAnswer(choice) {
                 }
             
                 const warpPaths = appPaths.cloudflareWarp;
-                let found = false;
-                warpPaths.forEach(path => {
-                    exec(`start "" "${path}"`, (error) => {
-                        if (!error && !found) {
-                            found = true;
-                            spinner.success({ text: `Cloudflare Warp launched from: ${path}` });
-                        }
-                        logErrorToFile(error); 
-                    });
-                });
+                let foundPath = warpPaths.find(p => fs.existsSync(p));
 
-                setTimeout(() => {
-                    if (!found) {
-                        spinner.error({ text: `Bruh, could not find Cloudflare Warp on your PC. Download from: ${downloadLinks.cloudflareWarp}` });
-                    
-                    }
-                }, 2000);
+                if (foundPath) {
+                    spawn('cmd.exe', ['/c', 'start', '""', '/B', foundPath], {
+                        detached: true,
+                        stdio: 'ignore'
+                    }).unref();
+                    spinner.success({ text: `Cloudflare Warp launched from: ${foundPath}` });
+                } else {
+                    spinner.error({ text: `Bruh, could not find Cloudflare Warp on your PC. Download from: ${downloadLinks.cloudflareWarp}` });
+                }
             });
         }
 

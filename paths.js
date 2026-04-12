@@ -1,3 +1,6 @@
+import fs from 'fs';
+import path from 'path';
+
 export const appPaths = {
     spotify: [
         '%LOCALAPPDATA%\\Microsoft\\WindowsApps\\Spotify.exe'
@@ -94,3 +97,18 @@ export const ctfTools = {
         }
     }
 };
+
+try {
+    const configPath = path.resolve('.dedsec_paths.json');
+    if (fs.existsSync(configPath)) {
+        const cached = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+        Object.assign(appPaths, cached);
+
+        if (cached.wireshark) ctfTools.forensics.wireshark.paths = cached.wireshark;
+        if (cached.vmware) ctfTools.forensics.virtualMachine.vmware.paths = cached.vmware;
+        if (cached.burpSuite) ctfTools.webExploit.burpSuite.paths = cached.burpSuite;
+        if (cached.binaryNinja) ctfTools.revPwn.binaryNinja.paths = cached.binaryNinja;
+    }
+} catch (e) {
+    // Ignore read/parse errors
+}
